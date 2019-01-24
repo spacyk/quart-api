@@ -1,10 +1,12 @@
-#!/usr/bin/python
+import asyncio
 
 import psycopg2
+
 from config import PG_DBNAME, PG_PASSWORD, PG_USER, PG_HOST
+from models import db
 
 
-def create_table():
+def create_table_sync_sql():
     """
     Synchronously create bazos_products table with psycopg2
     :return:
@@ -35,6 +37,11 @@ def create_table():
             conn.close()
 
 
+async def create_table_async_orm():
+    await db.set_bind(f'postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}:5432/{PG_DBNAME}')
+    await db.gino.create_all()
+
+
 if __name__ == '__main__':
-    pass
-    # create_table()
+    # create_table_sync_sql()
+    asyncio.get_event_loop().run_until_complete(create_table_async_orm())
