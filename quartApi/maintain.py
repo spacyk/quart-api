@@ -3,7 +3,7 @@ import asyncio
 import psycopg2
 
 from config import PG_DBNAME, PG_PASSWORD, PG_USER, PG_HOST
-from models import db
+from main import db
 
 
 def create_table_sync_sql():

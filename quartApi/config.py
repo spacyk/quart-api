@@ -1,7 +1,7 @@
 from os import environ
 
 
-PG_HOST = environ.get('PG_HOST')
-PG_DBNAME = environ.get('PG_DBNAME')
-PG_USER = environ.get('PG_USER')
-PG_PASSWORD = environ.get('PG_PASSWORD')
+DB_HOST = environ.get('DB_HOST')
+DB_DATABASE = environ.get('DB_DATABASE')
+DB_USER = environ.get('DB_USER')
+DB_PASSWORD = environ.get('DB_PASSWORD')
