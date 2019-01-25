@@ -2,7 +2,7 @@ import asyncio
 
 import psycopg2
 
-from config import PG_DBNAME, PG_PASSWORD, PG_USER, PG_HOST
+from config import DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD
 from main import db
 
 
@@ -25,7 +25,7 @@ def create_table_sync_sql():
         """
     conn = None
     try:
-        conn = psycopg2.connect(host=PG_HOST, dbname=PG_DBNAME, user=PG_USER, password=PG_PASSWORD)
+        conn = psycopg2.connect(host=DB_HOST, dbname=DB_DATABASE, user=DB_USER, password=DB_PASSWORD)
         cur = conn.cursor()
         cur.execute(command)
         cur.close()
@@ -38,7 +38,7 @@ def create_table_sync_sql():
 
 
 async def create_table_async_orm():
-    await db.set_bind(f'postgresql://{PG_USER}:{PG_PASSWORD}@{PG_HOST}:5432/{PG_DBNAME}')
+    await db.set_bind(f'postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:5432/{DB_DATABASE}')
     await db.gino.create_all()
 
 

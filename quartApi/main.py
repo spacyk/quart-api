@@ -1,4 +1,6 @@
 # [START gae_python37_app]
+import datetime
+
 from quart import Quart, websocket, jsonify
 from gino.ext.quart import Gino
 from marshmallow import Schema, fields
@@ -22,7 +24,7 @@ class BazosProduct(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
     title = db.Column(db.Unicode(127), unique=True, nullable=False)
-    date = db.Column(db.DateTime(), nullable=False)
+    date = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
     price = db.Column(db.Integer())
     city = db.Column(db.Unicode(32))
     post = db.Column(db.String(10))
