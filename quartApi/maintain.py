@@ -2,8 +2,8 @@ import asyncio
 
 import psycopg2
 
-from config import DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD
-from main import db
+from quartApi.config import DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD
+from quartApi.main import db
 
 
 def create_table_sync_sql():

@@ -5,7 +5,7 @@ from quart import Quart, websocket, jsonify
 from gino.ext.quart import Gino
 from marshmallow import Schema, fields
 
-from config import DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD
+from quartApi.config import DB_HOST, DB_DATABASE, DB_USER, DB_PASSWORD
 
 app = Quart(__name__)
 app.config.update(
@@ -47,6 +47,10 @@ class BazosProductSchema(Schema):
 
 bazos_products_schema = BazosProductSchema(many=True)
 
+
+@app.route('/ping')
+async def ping():
+    return('pong')
 
 @app.route('/products')
 async def products():
