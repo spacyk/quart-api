@@ -35,6 +35,7 @@ class BazosProduct(db.Model):
     post = db.Column(db.String(10))
     views = db.Column(db.Integer())
     description = db.Column(db.Unicode(255))
+    url = db.Column(db.Unicode(127))
 
 
 # SCHEMA #####
@@ -48,6 +49,7 @@ class BazosProductSchema(Schema):
     post = fields.Str()
     views = fields.Int()
     description = fields.Str()
+    url = fields.Str()
 
 
 bazos_products_schema = BazosProductSchema(many=True)

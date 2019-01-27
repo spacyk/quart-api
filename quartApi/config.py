@@ -6,4 +6,5 @@ DB_DATABASE = environ.get('DB_DATABASE')
 DB_USER = environ.get('DB_USER')
 DB_PASSWORD = environ.get('DB_PASSWORD')
 CLOUD_SQL_INSTANCE = environ.get('CLOUD_SQL_INSTANCE', '')
+SCRAPY_FEED_URI = environ.get('SCRAPY_FEED_URI', '')
 

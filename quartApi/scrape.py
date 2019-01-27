@@ -1,16 +1,22 @@
-import logging
+import re
 
 import scrapy
 
+from quartApi.config import SCRAPY_FEED_URI
 
-class GenericSpider(scrapy.Spider):
-    name = "generic_spider"
+
+class BazosSpider(scrapy.Spider):
+    name = "bazos_spider"
+    base_url = 'https://mobil.bazos.sk'
+    start_urls = [
+        f'{base_url}/apple/?hledat=iphone+x&rubriky=mobil&hlokalita=94911&humkreis=45&cenaod=&cenado=&kitx=ano',
+        f'{base_url}/apple/?hledat=iphone+x&rubriky=mobil&hlokalita=81101&humkreis=45&cenaod=&cenado=&kitx=ano'
+    ]
     page_number = 0
-    products_list = []
 
     custom_settings = {
         'FEED_FORMAT': 'csv',
-        'FEED_URI': '/home/spacyk/Projects/data-catcher/generic_output.csv',
+        'FEED_URI': SCRAPY_FEED_URI,
         'DOWNLOAD_DELAY': 3,
         'AJAXCRAWL_ENABLED': True,
         'COOKIES_ENABLED': False,
@@ -19,54 +25,43 @@ class GenericSpider(scrapy.Spider):
         'AUTOTHROTTLE_START_DELAY': 3,
         'AUTOTHROTTLE_MAX_DELAY': 50,
         'AUTOTHROTTLE_TARGET_CONCURRENCY': 1,
-        'AUTOTHROTTLE_DEBUG': False
+        'AUTOTHROTTLE_DEBUG': False,
+
+        'FEED_EXPORT_FIELDS': ['title', 'date', 'price', 'city', 'post', 'views', 'description', 'url']
+
     }
 
-    def __init__(self, url='', page_changing_string='', xpath_element_definition=''):
-        super().__init__(start_urls=[url])
-        self.page_changing_string = page_changing_string
-        self.xpath_element_definition = xpath_element_definition
-
-
     def parse(self, response):
-
-        self.find_products_list(response)
-        if not self.products_list:
-            raise ElementsNotFound
-
-        for product_data in self.get_products_data():
-            yield product_data
-
         self.page_number += 1
-        next_page = f'{self.start_urls[0]}{self.page_number*20}/{self.page_changing_string}'
-        logging.info(f'Scraping page: {self.page_number}')
+
+        SET_SELECTOR = '//table[@class="inzeraty"]'
+        for product in response.xpath(SET_SELECTOR):
+
+            #' img ::attr(src)'
+            TITLE_SELECTOR = 'a ::text'
+            DATE_SELECTOR = 'span.velikost10 ::text'
+            PRICE_SELECTOR = 'span.cena ::text'
+            CITY_SELECTOR = 'tbody tr td ::text'
+            POST_SELECTOR = './/table/tbody/tr[1]/td[3]/text()'
+            VIEWS_SELECTOR = '/html/body/div/table/tbody/tr/td[2]/span[1]/table/tbody/tr[1]/td[4]'
+            DESCRIPTION_SELECTOR = 'div.popis ::text'
+            URL_SELECTOR = 'a ::attr(href)'
+
+            yield {
+                'title': product.css(TITLE_SELECTOR).extract_first(),
+                'date': (product.css(DATE_SELECTOR).extract())[-1].strip(' - [').strip(']'),
+                'price': product.css(PRICE_SELECTOR).extract_first(),
+                'city': product.css(CITY_SELECTOR).extract_first(),
+                'post': product.xpath(POST_SELECTOR).extract_first(),
+                'views': product.xpath(VIEWS_SELECTOR).extract_first(),
+                'description': ''.join(product.css(DESCRIPTION_SELECTOR).extract()),
+                'url': f'{self.base_url}{product.css(URL_SELECTOR).extract_first()}'
+            }
+
+        next_page = re.sub('\/\?', f'/{self.page_number * 20}/?', response.url)
+
         if next_page:
             yield scrapy.Request(
                 response.urljoin(next_page),
                 callback=self.parse
             )
-
-    def find_products_list(self, response):
-        self.products_list = response.xpath(self.xpath_element_definition)
-
-
-    def get_products_data(self):
-        for product_context in self.products_list:
-            cleared_attribs = [attrib.strip() for attrib in product_context.xpath('.//node()/text()').extract()]
-            relevant_attribs = [attrib for attrib in cleared_attribs if attrib]
-            title = relevant_attribs[0].upper()
-            '''
-            if "IPHONE X" not in title or "IPHONEX" not in title:
-                continue
-            if "XS" in title or "XR" in title:
-                continue
-            if not relevant_attribs:
-                continue
-            '''
-            yield {
-                f'field_{index}': value for index, value in enumerate(relevant_attribs)
-            }
-
-
-class ElementsNotFound(Exception):
-    """Your xpath defined elements were not found on the page"""
