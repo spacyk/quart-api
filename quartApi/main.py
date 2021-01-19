@@ -23,7 +23,7 @@ products_schema = ProductSchema(many=True)
 @app.route('/products')
 async def products():
     products = await Product.query.gino.all()
-    serialized_products, errors = products_schema.dump(products)
+    serialized_products = products_schema.dump(products)
     return jsonify(products=serialized_products)
 
 
