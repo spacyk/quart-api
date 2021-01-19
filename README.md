@@ -1,5 +1,5 @@
 # Quart API
-Simple web API example built on **Quart** async web framework(https://github.com/pgjones/quart) with PostgreSQL integration. 
+Simple example of web API built on **Quart** async web framework(https://github.com/pgjones/quart) with PostgreSQL integration. 
 
 ### Setup
 
